@@ -49,7 +49,7 @@ var dict = {
     edNudge: 'Việc này hơi lớn — bước đầu tiên là gì?',
     attHead: 'Tệp & liên kết',
     attAddFile: '＋ Tệp',
-    attAddLink: '＋ Alice kết',
+    attAddLink: '＋ Liên kết',
     attDelete: 'Gỡ bỏ',
     attUploading: 'Đang tải lên…',
     attTooLarge: 'Tệp quá lớn (tối đa 20MB).',
