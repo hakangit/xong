@@ -1,7 +1,7 @@
 [project]
 name = "xong"
 version = "0.2.0"
-description = "Gamified task list — xong means done"
+description = "A calm, self-hosted task system for people and AI agents"
 readme = "README.md"
 authors = [{ name = "Nicolas Koehl" }]
 license = "Apache-2.0"

@@ -4,11 +4,36 @@
 
 <h1 align="center">Xong</h1>
 
-<p align="center"><strong>The quiet joy of done.</strong></p>
+<p align="center">
+  <strong>The quiet joy of done.</strong><br>
+  A calm task system for people and the agents that support them.
+</p>
 
-Xong is a focused, gamified task app. The core server provides lists, tasks,
-today/focus views, a web UI, OIDC authentication, and scoped agent API keys.
-Optional capabilities are enabled per deployment with one environment variable.
+Most agent integrations bolt automation onto an application. Xong starts with one shared
+task model and one identity boundary: people work through the web or native client, while
+agents use REST, MCP, or A2A against the same state and business rules.
+
+## Why Xong is different
+
+```mermaid
+flowchart LR
+    people["People<br>Web · iOS"] --> xong["Xong<br>Tasks · identity · focus"]
+    agents["Agents<br>REST · MCP · A2A"] --> xong
+    xong --> context["Optional context<br>Files · skills · teaching · traces"]
+```
+
+- **Delegation names the principal.** Agent keys are limited to allowed users, and every
+  delegated request declares who the agent is acting for. REST, MCP, and A2A resolve
+  through the same authentication path.
+- **Capabilities are actual boundaries.** A deployment enables only the plugins it needs.
+  Disabled routes are not registered, and discovery tells clients exactly what exists.
+- **Work can build organizational memory.** The optional organization model connects
+  people, skills, teaching sessions, usage, and decision traces to everyday execution.
+- **The interface stays humane.** Three focus tasks, concrete next actions, gentle rollover,
+  and a satisfying completion ritual keep the operational machinery out of the way.
+
+The result is small enough to run as a personal task app, but structured enough to become
+the task and context layer for a team of people and agents.
 
 ## Quickstart
 
