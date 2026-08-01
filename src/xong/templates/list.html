@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% from "macros.html" import task_row %}
+
+{% block title %}{{ list.name }} · Xong{% endblock %}
+
+{% block content %}
+<section class="section">
+  <h1 class="page-title">{{ list.name }}</h1>
+
+  <form class="add-box" method="post" action="/ui/tasks" autocomplete="off">
+    <input type="hidden" name="redirect_to" value="/lists/{{ list.id }}">
+    <input type="hidden" name="list_id" value="{{ list.id }}">
+    <input type="text"
+           name="title"
+           class="add-input"
+           placeholder="Thêm việc… · Add a task"
+           required
+           autofocus
+           autocomplete="off">
+    <button type="submit" class="add-submit" aria-label="Thêm">+</button>
+  </form>
+</section>
+
+<section class="section">
+  {% if tasks %}
+  <ul class="task-list">
+    {% for task in tasks %}
+      {{ task_row(task, none, focus_ids, "/lists/" ~ list.id) }}
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p class="empty calm">Chưa có việc. Gõ ở trên rồi Enter.</p>
+  {% endif %}
+</section>
+
+{% if lists|length > 1 %}
+<section class="section">
+  <h2 class="section-title">Danh sách khác</h2>
+  <ul class="list-switcher">
+    {% for l in lists %}
+    <li>
+      <a href="/lists/{{ l.id }}" class="{% if l.id == list.id %}active{% endif %}">{{ l.name }}</a>
+    </li>
+    {% endfor %}
+  </ul>
+</section>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,57 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        plugins:
+          - ""
+          - files,org,assistant,mcp,a2a
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: xong_test
+          POSTGRES_USER: xong
+          POSTGRES_PASSWORD: xong
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U xong -d xong_test"
+          --health-interval 2s
+          --health-timeout 3s
+          --health-retries 20
+    env:
+      DATABASE_URL: postgresql+psycopg://xong:xong@localhost:5432/xong_test
+      XONG_PLUGINS: ${{ matrix.plugins }}
+      XONG_ROUTER_BASE: https://router.example
+      XONG_ALLOWED_HOSTS: testserver,localhost,127.0.0.1
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v9
+        with:
+          enable-cache: true
+      - run: uv sync --frozen --all-extras
+      - run: uv run pytest
+      - run: uv run ruff check src tests
+      - run: uv build
+
+  compose-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker compose up --build --wait
+      - run: |
+          curl --fail http://localhost:8000/readyz
+          test "$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8000/mcp)" = 404
+          test "$(curl -s http://localhost:8000/.well-known/xong-config | jq -c .capabilities)" = '[]'
+      - if: always()
+        run: docker compose logs
+      - if: always()
+        run: docker compose down --volumes

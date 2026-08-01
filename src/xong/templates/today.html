@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% from "macros.html" import task_row %}
+
+{% block title %}Hôm nay · Xong{% endblock %}
+
+{% block content %}
+<section class="section">
+  <form class="add-box" method="post" action="/ui/tasks" autocomplete="off">
+    <input type="hidden" name="redirect_to" value="/">
+    <input type="hidden" name="list_id" value="{{ data.default_list.id }}">
+    <input type="text"
+           name="title"
+           class="add-input"
+           placeholder="Thêm việc… · Add a task"
+           required
+           autofocus
+           autocomplete="off">
+    <button type="submit" class="add-submit" aria-label="Thêm">+</button>
+  </form>
+</section>
+
+<section class="section">
+  <h2 class="section-title">
+    3 việc hôm nay
+    <span class="section-sub">Today's 3</span>
+  </h2>
+  {% if data.focus %}
+  <ul class="task-list task-list--focus">
+    {% for task in data.focus %}
+      {{ task_row(task, data.date, none, "/", true) }}
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p class="empty calm">Chưa chọn 3 việc. Bấm ★ trên một việc bất kỳ.</p>
+  {% endif %}
+</section>
+
+{% if data.overdue %}
+<section class="section">
+  <h2 class="section-title">
+    Còn lại
+    <span class="section-sub">Still open</span>
+  </h2>
+  <ul class="task-list">
+    {% for task in data.overdue %}
+      {{ task_row(task, data.date, none, "/") }}
+    {% endfor %}
+  </ul>
+</section>
+{% endif %}
+
+{% if data.due_today %}
+<section class="section">
+  <h2 class="section-title">
+    Hôm nay đến hạn
+    <span class="section-sub">Due today</span>
+  </h2>
+  <ul class="task-list">
+    {% for task in data.due_today %}
+      {{ task_row(task, data.date, none, "/") }}
+    {% endfor %}
+  </ul>
+</section>
+{% endif %}
+
+<section class="section">
+  <h2 class="section-title">
+    {{ data.default_list.name }}
+    <span class="section-sub">
+      <a href="/lists/{{ data.default_list.id }}">Xem list →</a>
+    </span>
+  </h2>
+  {% if data.default_tasks %}
+  <ul class="task-list">
+    {% for task in data.default_tasks %}
+      {{ task_row(task, data.date, none, "/") }}
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p class="empty calm">Trống — thêm việc ở trên.</p>
+  {% endif %}
+</section>
+{% endblock %}
