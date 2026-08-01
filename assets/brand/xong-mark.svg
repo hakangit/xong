@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img">
+  <title>Xong terrace mark</title>
+  <desc>Three related rice-terrace contours share one soft rising rhythm and resolve toward a quiet dawn accent, for calm completion.</desc>
+  <circle cx="352" cy="126" r="28" fill="#B85C42"/>
+  <path fill="#0E5C58" d="M236 152c34-12 82-12 122 12 24 14 40 40 36 66-2 12-14 20-26 18l-122-14c-14-2-24-14-20-28 6-22 12-40 18-48 2-4 6-6 12-6z"/>
+  <path fill="#0E5C58" d="M128 246c50-16 118-16 178 10 48 20 90 52 112 88 8 12 0 28-16 30l-240 12c-16 1-28-12-24-28 8-34 16-70 24-94 2-8 10-16 20-18z"/>
+  <path fill="#1A2744" d="M72 360C130 340 220 332 300 342 360 350 410 372 430 400 442 418 438 442 410 450 320 462 200 460 110 448 80 442 58 420 62 392 64 374 66 366 72 360Z"/>
+</svg>

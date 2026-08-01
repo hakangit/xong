@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#1a1f2e">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>{% block title %}Xong{% endblock %}</title>
+  <link rel="manifest" href="/static/manifest.webmanifest">
+  <link rel="icon" href="/static/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/static/css/app.css">
+  <script src="/static/js/htmx.min.js" defer></script>
+  <script src="/static/js/app.js" defer></script>
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <a href="/" class="brand">Xong</a>
+      <div class="topbar-right">
+        {% if data is defined and data.streak is defined %}
+        <span class="streak" title="Chuỗi ngày · Streak">🔥 {{ data.streak }}</span>
+        {% elif recap is defined %}
+        <span class="streak" title="Chuỗi ngày · Streak">🔥 {{ recap.streak }}</span>
+        {% endif %}
+        <button type="button" id="mute-toggle" class="icon-btn" aria-label="Tắt/bật âm" title="Âm thanh">🔊</button>
+        <span class="user-chip">{{ user.display_name }}</span>
+      </div>
+    </header>
+
+    <nav class="nav">
+      <a href="/" class="{% if page == 'today' %}active{% endif %}">Hôm nay <span class="sub">Today</span></a>
+      {% if lists %}
+      <a href="/lists/{{ lists[0].id }}" class="{% if page == 'list' %}active{% endif %}">Danh sách <span class="sub">Lists</span></a>
+      {% endif %}
+      <a href="/recap" class="{% if page == 'recap' %}active{% endif %}">Tuần này <span class="sub">Wins</span></a>
+    </nav>
+
+    <main class="main">
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+  <canvas id="confetti-canvas" aria-hidden="true"></canvas>
+</body>
+</html>

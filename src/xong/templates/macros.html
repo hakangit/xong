@@ -1,0 +1,52 @@
+{% macro task_row(task, today_date=None, focus_ids=None, redirect_to="/", big=false) %}
+<li class="task-row{% if big %} task-row--focus{% endif %}"
+    id="task-{{ task.id }}"
+    data-task-id="{{ task.id }}">
+  <button type="button"
+          class="check-btn"
+          aria-label="Đánh dấu xong"
+          data-complete-url="/ui/tasks/{{ task.id }}/complete">
+    <span class="check-ring"></span>
+  </button>
+  <div class="task-body">
+    <div class="task-title">{{ task.title }}</div>
+    {% if task.next_action %}
+    <div class="task-next">→ {{ task.next_action }}</div>
+    {% elif task.looks_vague %}
+    <form class="nudge-form"
+          method="post"
+          action="/ui/tasks/{{ task.id }}/next-action"
+          hx-post="/ui/tasks/{{ task.id }}/next-action"
+          hx-target="closest .task-row"
+          hx-swap="outerHTML">
+      <input type="hidden" name="redirect_to" value="{{ redirect_to }}">
+      <input type="text"
+             name="next_action"
+             class="nudge-input"
+             placeholder="Bước nhỏ đầu tiên? · Tiny next step…"
+             autocomplete="off">
+    </form>
+    {% endif %}
+    {% if task.when_where %}
+    <div class="task-plan">Kế hoạch: {{ task.when_where }}</div>
+    {% endif %}
+    {% if today_date and task.due_at %}
+      {% set label = calm_due_label(task, today_date) %}
+      {% if label %}
+      <div class="task-due calm">{{ label }}</div>
+      {% endif %}
+    {% endif %}
+  </div>
+  {% if focus_ids is not none %}
+  <form method="post" action="/ui/tasks/{{ task.id }}/focus-toggle" class="focus-form">
+    <input type="hidden" name="redirect_to" value="{{ redirect_to }}">
+    <button type="submit"
+            class="focus-btn{% if task.id in focus_ids %} is-on{% endif %}"
+            title="{% if task.id in focus_ids %}Bỏ khỏi 3 việc hôm nay{% else %}Thêm vào 3 việc hôm nay{% endif %}"
+            aria-label="Focus">
+      ★
+    </button>
+  </form>
+  {% endif %}
+</li>
+{% endmacro %}

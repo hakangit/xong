@@ -1,0 +1,78 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  public-safety:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      - uses: gitleaks/gitleaks-action@e0c47f4f8be36e29cdc102c57e68cb5cbf0e8d1e # v3.0.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_VERSION: 8.30.1
+          GITLEAKS_ENABLE_COMMENTS: false
+          GITLEAKS_ENABLE_UPLOAD_ARTIFACT: false
+
+  test:
+    name: test (${{ matrix.cache-suffix }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - plugins: ""
+            cache-suffix: core
+          - plugins: files,org,assistant,mcp,a2a
+            cache-suffix: all-plugins
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: xong_test
+          POSTGRES_USER: xong
+          POSTGRES_PASSWORD: xong
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U xong -d xong_test"
+          --health-interval 2s
+          --health-timeout 3s
+          --health-retries 20
+    env:
+      DATABASE_URL: postgresql+psycopg://xong:xong@localhost:5432/xong_test
+      XONG_PLUGINS: ${{ matrix.plugins }}
+      XONG_ROUTER_BASE: https://router.example
+      XONG_ALLOWED_HOSTS: testserver,localhost,127.0.0.1
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
+        with:
+          enable-cache: true
+          cache-suffix: ${{ matrix.cache-suffix }}
+      - run: uv sync --frozen --all-extras
+      - run: uv run pytest
+      - run: uv run ruff check src tests
+      - run: uv build
+
+  compose-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - run: docker compose up --build --wait
+      - run: |
+          curl --fail http://localhost:8000/readyz
+          curl --fail http://localhost:8000/ > /dev/null
+          test "$(curl -s -o /dev/null -w '%{content_type}' http://localhost:8000/splash-rice-terraces.webp)" = image/webp
+          test "$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8000/mcp)" = 404
+          test "$(curl -s http://localhost:8000/.well-known/xong-config | jq -c .capabilities)" = '[]'
+      - if: always()
+        run: docker compose logs
+      - if: always()
+        run: docker compose down --volumes

@@ -1,0 +1,45 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: xong
+      POSTGRES_USER: xong
+      POSTGRES_PASSWORD: xong
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U xong -d xong"]
+      interval: 2s
+      timeout: 3s
+      retries: 20
+    ports:
+      - "127.0.0.1:55432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+  app:
+    build: .
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql+psycopg://xong:xong@db:5432/xong
+      DEV_USER: demo
+      XONG_PLUGINS: ""
+      XONG_ALLOWED_HOSTS: localhost,127.0.0.1
+    command:
+      - sh
+      - -c
+      - alembic upgrade head && uvicorn xong.app:app --host 0.0.0.0 --port 8000
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - import urllib.request; urllib.request.urlopen('http://localhost:8000/healthz')
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+volumes:
+  postgres-data:

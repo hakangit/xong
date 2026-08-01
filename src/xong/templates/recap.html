@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}Tuần này · Xong{% endblock %}
+
+{% block content %}
+<section class="section recap-hero">
+  <h1 class="page-title">Tuần này bạn đã xong</h1>
+  <p class="recap-lead calm">Những việc đã hoàn thành — không so sánh, không áp lực.</p>
+
+  <div class="recap-stats">
+    <div class="stat">
+      <div class="stat-value">🔥 {{ recap.streak }}</div>
+      <div class="stat-label">Chuỗi ngày · Streak</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value">{{ recap.total }}</div>
+      <div class="stat-label">Việc xong · Done</div>
+    </div>
+    {% if recap.best_day %}
+    <div class="stat">
+      <div class="stat-value">{{ recap.best_day_count }}</div>
+      <div class="stat-label">Ngày mạnh nhất · {{ recap.best_day }}</div>
+    </div>
+    {% endif %}
+  </div>
+</section>
+
+<section class="section">
+  <h2 class="section-title">Theo ngày · By day</h2>
+  <ul class="day-wins">
+    {% for day in recap.days %}
+    <li class="day-win{% if day.count == 0 %} is-empty{% endif %}">
+      <div class="day-win-head">
+        <span class="day-date">{{ day.date }}</span>
+        <span class="day-count">{{ day.count }}</span>
+      </div>
+      {% if day.titles %}
+      <ul class="day-titles">
+        {% for t in day.titles %}
+        <li>✓ {{ t }}</li>
+        {% endfor %}
+      </ul>
+      {% else %}
+      <p class="empty calm quiet">—</p>
+      {% endif %}
+    </li>
+    {% endfor %}
+  </ul>
+</section>
+{% endblock %}
