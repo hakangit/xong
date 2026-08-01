@@ -14,7 +14,7 @@ from sqlalchemy import text
 from sqlalchemy.orm import Session
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 
-from xong import assistant
+from xong import __version__, assistant
 from xong.a2a import router as a2a_router
 from xong.api import router as api_router
 from xong.config import (
@@ -65,7 +65,7 @@ def create_app() -> FastAPI:
     app = FastAPI(
         title="Xong",
         description="Gamified task list — xong = done.",
-        version="0.2.0",
+        version=__version__,
         lifespan=lifespan,
     )
     app.state.capabilities = tuple(name for name in get_plugins() if name in enabled)

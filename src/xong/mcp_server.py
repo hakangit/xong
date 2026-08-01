@@ -8,7 +8,7 @@ from mcp.server import MCPServer
 from mcp.server.transport_security import TransportSecuritySettings
 from starlette.responses import JSONResponse
 
-from xong import services
+from xong import __version__, services
 from xong.auth import AuthContext, resolve_auth
 from xong.config import get_allowed_hosts, get_cors_origins, get_public_url
 from xong.db import get_session_factory
@@ -19,7 +19,7 @@ _auth_context: ContextVar[AuthContext | None] = ContextVar("xong_mcp_auth", defa
 mcp = MCPServer(
     "Xong",
     description="Manage the authenticated user's Xong tasks.",
-    version="0.2.0",
+    version=__version__,
 )
 
 

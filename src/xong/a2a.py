@@ -6,7 +6,7 @@ from typing import Any
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy.orm import Session
 
-from xong import services
+from xong import __version__, services
 from xong.auth import AuthContext, require_bearer_auth
 from xong.config import get_public_url
 from xong.db import get_db
@@ -61,7 +61,7 @@ def agent_card(request: Request):
         "supportedInterfaces": [
             {"url": f"{base}/a2a", "protocolBinding": "JSONRPC", "protocolVersion": "1.0"}
         ],
-        "version": "0.2.0",
+        "version": __version__,
         "capabilities": {"streaming": False, "pushNotifications": False},
         "securitySchemes": {"bearer": {"type": "http", "scheme": "bearer"}},
         "securityRequirements": [{"bearer": []}],
