@@ -34,7 +34,7 @@ jobs:
       XONG_ALLOWED_HOSTS: testserver,localhost,127.0.0.1
     steps:
       - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v9
+      - uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
         with:
           enable-cache: true
       - run: uv sync --frozen --all-extras
