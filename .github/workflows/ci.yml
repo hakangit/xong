@@ -10,9 +10,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        plugins:
-          - ""
-          - files,org,assistant,mcp,a2a
+        include:
+          - plugins: ""
+            cache-suffix: core
+          - plugins: files,org,assistant,mcp,a2a
+            cache-suffix: all-plugins
     services:
       postgres:
         image: postgres:16-alpine
@@ -37,7 +39,7 @@ jobs:
       - uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
         with:
           enable-cache: true
-          cache-suffix: ${{ matrix.plugins }}
+          cache-suffix: ${{ matrix.cache-suffix }}
       - run: uv sync --frozen --all-extras
       - run: uv run pytest
       - run: uv run ruff check src tests
