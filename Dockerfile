@@ -1,4 +1,4 @@
-FROM python:3.12-slim-bookworm AS build
+FROM python:3.14-slim-bookworm AS build
 WORKDIR /app
 ENV UV_COMPILE_BYTECODE=1 UV_LINK_MODE=copy UV_SYSTEM_CERTS=1
 RUN pip install --no-cache-dir uv
@@ -10,7 +10,7 @@ COPY alembic ./alembic
 COPY scripts ./scripts
 RUN uv sync --frozen --no-dev
 
-FROM python:3.12-slim-bookworm
+FROM python:3.14-slim-bookworm
 WORKDIR /app
 COPY --from=build /app /app
 # static trilingual frontend (web PWA; same code Tauri wraps)
