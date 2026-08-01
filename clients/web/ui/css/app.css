@@ -94,6 +94,110 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* ---------- first arrival ---------- */
+
+.splash {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  isolation: isolate;
+  background: #c9d0c6;
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.55s cubic-bezier(0.4, 0, 0.2, 1),
+    visibility 0s linear 0.55s;
+}
+
+.splash::before {
+  content: '';
+  position: absolute;
+  inset: -3%;
+  z-index: -2;
+  background-image:
+    linear-gradient(180deg, rgba(243, 239, 229, 0.06) 0%, rgba(34, 31, 24, 0.12) 100%),
+    url('../splash-rice-terraces.webp');
+  background-position: center 54%;
+  background-size: cover;
+  animation: splash-breathe 4s ease-out both;
+}
+
+.splash::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(
+    180deg,
+    rgba(250, 247, 239, 0.22) 0%,
+    rgba(250, 247, 239, 0.05) 58%,
+    rgba(27, 24, 20, 0.10) 100%
+  );
+}
+
+.splash-content {
+  display: grid;
+  justify-items: center;
+  transform: translateY(-7vh);
+  color: #26211a;
+  text-align: center;
+  animation: splash-arrive 0.8s cubic-bezier(0.2, 0.75, 0.25, 1) both;
+}
+
+.splash-mark {
+  width: clamp(88px, 13vw, 112px);
+  height: auto;
+  margin-bottom: 18px;
+  border-radius: 25%;
+  filter: drop-shadow(0 12px 24px rgba(38, 33, 26, 0.18));
+}
+
+.splash-name {
+  font-family: var(--font-display);
+  font-size: clamp(38px, 7vw, 54px);
+  font-weight: 800;
+  letter-spacing: -0.045em;
+  line-height: 1;
+  text-shadow: 0 1px 18px rgba(250, 247, 239, 0.6);
+}
+
+.splash-name span { color: var(--accent); }
+
+.splash-tagline {
+  margin-top: 10px;
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  text-shadow: 0 1px 12px rgba(250, 247, 239, 0.9);
+}
+
+.splash.leaving {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+html.splash-seen .splash { display: none; }
+
+@keyframes splash-arrive {
+  from { opacity: 0; transform: translateY(calc(-7vh + 12px)); }
+  to { opacity: 1; transform: translateY(-7vh); }
+}
+
+@keyframes splash-breathe {
+  from { transform: scale(1.035); }
+  to { transform: scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .splash { transition-duration: 0.15s; }
+  .splash::before,
+  .splash-content { animation: none; }
+}
+
 .weave-sprite {
   position: absolute;
   width: 0;

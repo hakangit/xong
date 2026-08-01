@@ -14,7 +14,7 @@ FROM python:3.12-slim-bookworm
 WORKDIR /app
 COPY --from=build /app /app
 # static trilingual frontend (web PWA; same code Tauri wraps)
-COPY clients/web /app/ui
+COPY clients/web/ui /app/ui
 ENV PATH="/app/.venv/bin:$PATH" XONG_STATIC_DIR=/app/ui
 EXPOSE 8000
 CMD ["uvicorn", "xong.app:app", "--host", "0.0.0.0", "--port", "8000"]
