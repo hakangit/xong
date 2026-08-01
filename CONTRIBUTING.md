@@ -26,6 +26,7 @@ DATABASE_URL=postgresql+psycopg://xong:xong@localhost:55432/xong \
   XONG_ROUTER_BASE=https://router.example uv run pytest
 uv run ruff check src tests
 uv build
+python3 scripts/check_public_boundary.py
 ```
 
 Database changes require a linear Alembic migration. Update the expected schema revision
@@ -44,6 +45,8 @@ remove or replace any real-world operational data, including:
 Use `example.com`, reserved IP ranges, and invented identities in tests and documentation. Keep
 organization-specific deployment overlays and integrations in a private repository. If sensitive
 data reaches Git history, rotate the credential first; deleting it in a later commit is not enough.
+The public-boundary check rejects private network addresses, private DNS suffixes, real email
+addresses, and internal deployment artifacts before they enter the repository.
 
 ## Pull requests
 
