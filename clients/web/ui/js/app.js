@@ -23,9 +23,13 @@ var state = {
 
 var STARRED_KEY = 'xong.starred-ever';
 var WEAVE_KEY_PREFIX = 'xong.weave.passes.';
+var SPLASH_KEY = 'xong.splash.seen.v1';
+var SPLASH_MIN_MS = 1400;
 var SYNC_INTERVAL_MS = 30000;
 var syncTimer = null;
 var syncRunning = false;
+var splashStarted = performance.now();
+var splashDismissed = false;
 
 /* ---------- small helpers ---------- */
 
@@ -179,6 +183,23 @@ function toast(msg) {
   el.classList.add('show');
   clearTimeout(toastTimer);
   toastTimer = setTimeout(function () { el.classList.remove('show'); }, 2200);
+}
+
+function dismissSplash() {
+  if (splashDismissed) return;
+  splashDismissed = true;
+  var splash = $('#splash');
+  if (!splash || document.documentElement.classList.contains('splash-seen')) return;
+  var remaining = Math.max(0, SPLASH_MIN_MS - (performance.now() - splashStarted));
+  setTimeout(function () {
+    splash.classList.add('leaving');
+    try { localStorage.setItem(SPLASH_KEY, '1'); } catch (e) {}
+    var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    setTimeout(function () {
+      document.documentElement.classList.add('splash-seen');
+      splash.remove();
+    }, reduced ? 160 : 560);
+  }, remaining);
 }
 
 /* ---------- task row: title + at most ONE metadata line ---------- */
@@ -840,7 +861,7 @@ function switchView(view) {
   document.querySelectorAll('.nav-btn').forEach(function (b) {
     b.classList.toggle('on', b.dataset.view === view);
   });
-  refresh();
+  return refresh();
 }
 
 function updateMuteBtn() {
@@ -876,13 +897,13 @@ function applyHash() {
   var skill = /^skill\/(.+)$/.exec(hash);
   if (skill) {
     state.skillSlug = decodeURIComponent(skill[1]);
-    switchView('skill');
-    return;
+    return switchView('skill');
   }
-  switchView(['today', 'lists', 'recap'].indexOf(hash) !== -1 ? hash : 'today');
+  return switchView(['today', 'lists', 'recap'].indexOf(hash) !== -1 ? hash : 'today');
 }
 
 async function init() {
+  var splashFailsafe = setTimeout(dismissSplash, 4500);
   await client.loadCapabilities();
   document.querySelectorAll('.nav-btn').forEach(function (b) {
     b.addEventListener('click', function () {
@@ -908,7 +929,12 @@ async function init() {
     });
   });
   applyStatic();
-  applyHash();
+  try {
+    await applyHash();
+  } finally {
+    clearTimeout(splashFailsafe);
+    dismissSplash();
+  }
   startSyncCycle();
   // Proxy identity: show who this list belongs to (real mode only).
   client.me().then(function (u) {

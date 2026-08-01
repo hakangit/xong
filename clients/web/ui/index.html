@@ -8,9 +8,24 @@
 <title>Xong</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
+<script>
+try {
+  if (localStorage.getItem('xong.splash.seen.v1')) {
+    document.documentElement.classList.add('splash-seen');
+  }
+} catch (e) {}
+</script>
 <link rel="stylesheet" href="css/app.css">
 </head>
 <body>
+<div id="splash" class="splash" role="status" aria-label="Xong — The quiet joy of done">
+  <div class="splash-content">
+    <img class="splash-mark" src="icon.svg" alt="">
+    <div class="splash-name">Xong<span>.</span></div>
+    <div class="splash-tagline">The quiet joy of done.</div>
+  </div>
+</div>
+
 <svg xmlns="http://www.w3.org/2000/svg" class="weave-sprite" aria-hidden="true">
   <defs>
     <style>

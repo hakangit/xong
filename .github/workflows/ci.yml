@@ -53,6 +53,8 @@ jobs:
       - run: docker compose up --build --wait
       - run: |
           curl --fail http://localhost:8000/readyz
+          curl --fail http://localhost:8000/ > /dev/null
+          test "$(curl -s -o /dev/null -w '%{content_type}' http://localhost:8000/splash-rice-terraces.webp)" = image/webp
           test "$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8000/mcp)" = 404
           test "$(curl -s http://localhost:8000/.well-known/xong-config | jq -c .capabilities)" = '[]'
       - if: always()

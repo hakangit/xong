@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+import mimetypes
 import os
 from contextlib import asynccontextmanager
 from pathlib import Path
@@ -37,6 +38,7 @@ from xong.ui import router as ui_router
 
 STATIC_DIR = Path(__file__).resolve().parent / "static"
 logger = logging.getLogger(__name__)
+mimetypes.add_type("image/webp", ".webp")
 
 
 def create_app() -> FastAPI:
