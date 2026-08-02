@@ -11,6 +11,7 @@ relative path; bytes never touch Postgres.
 
 from __future__ import annotations
 
+import contextlib
 import os
 import re
 import secrets
@@ -65,10 +66,8 @@ def open_read(rel_path: str):
 
 
 def delete(rel_path: str) -> None:
-    try:
+    with contextlib.suppress(FileNotFoundError):
         os.remove(_abs(rel_path))
-    except FileNotFoundError:
-        pass
 
 
 def delete_task_dir(username: str, task_id: int) -> None:

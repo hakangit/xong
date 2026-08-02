@@ -272,25 +272,28 @@ def _follow_merged_into(db: Session, skill: Skill) -> Skill:
     return current
 
 
-def _get_skill(db: Session, slug: str) -> Skill:
-    """Resolve slug via direct match or alias, then follow merged_into (depth 5)."""
+def _find_skill(db: Session, slug: str) -> Skill:
+    """Resolve slug via direct match or alias, without following merge chains."""
     skill = db.scalar(select(Skill).where(Skill.slug == slug))
     if skill is None:
         alias = db.scalar(select(SkillAlias).where(SkillAlias.alias == slug))
-        if alias is None:
-            raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Skill not found")
-        skill = db.get(Skill, alias.skill_id)
-        if skill is None:
-            raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Skill not found")
-    return _follow_merged_into(db, skill)
+        if alias is not None:
+            skill = db.get(Skill, alias.skill_id)
+    if skill is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Skill not found")
+    return skill
+
+
+def _get_skill(db: Session, slug: str) -> Skill:
+    """Resolve slug via direct match or alias, then follow merged_into (depth 5)."""
+    return _follow_merged_into(db, _find_skill(db, slug))
 
 
 def _slug_or_alias_taken(db: Session, slug: str) -> bool:
-    if db.scalar(select(Skill.id).where(Skill.slug == slug)) is not None:
-        return True
-    if db.scalar(select(SkillAlias.id).where(SkillAlias.alias == slug)) is not None:
-        return True
-    return False
+    return (
+        db.scalar(select(Skill.id).where(Skill.slug == slug)) is not None
+        or db.scalar(select(SkillAlias.id).where(SkillAlias.alias == slug)) is not None
+    )
 
 
 def _skill_lineage_ids(db: Session, canonical_ids: set[int]) -> set[int]:
@@ -838,26 +841,10 @@ def merge_skill(
             detail="Only humans may merge skills",
         )
 
-    # Resolve without following merge chains so we operate on the named rows.
-    loser = db.scalar(select(Skill).where(Skill.slug == slug))
-    if loser is None:
-        alias = db.scalar(select(SkillAlias).where(SkillAlias.alias == slug))
-        if alias is None:
-            raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Skill not found")
-        loser = db.get(Skill, alias.skill_id)
-    if loser is None:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Skill not found")
-
-    winner = db.scalar(select(Skill).where(Skill.slug == canonical))
-    if winner is None:
-        alias = db.scalar(select(SkillAlias).where(SkillAlias.alias == canonical))
-        if alias is None:
-            raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Skill not found")
-        winner = db.get(Skill, alias.skill_id)
-    if winner is None:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Skill not found")
-
-    winner = _follow_merged_into(db, winner)
+    # Resolve the loser without following merge chains so we operate on the
+    # named row; the winner resolves to its canonical form.
+    loser = _find_skill(db, slug)
+    winner = _follow_merged_into(db, _find_skill(db, canonical))
     if loser.id == winner.id:
         raise HTTPException(
             status.HTTP_400_BAD_REQUEST,
@@ -1626,9 +1613,10 @@ def post_trace(
             status.HTTP_422_UNPROCESSABLE_CONTENT,
             detail="kind='decision' requires an approver (human anchor)",
         )
-    if approver is not None:
-        if db.scalar(select(OrgPerson.id).where(OrgPerson.username == approver)) is None:
-            raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Approver not found")
+    if approver is not None and db.scalar(
+        select(OrgPerson.id).where(OrgPerson.username == approver)
+    ) is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Approver not found")
 
     tags = [tag.strip() for tag in body.tags if tag.strip()]
     trust = body.trust

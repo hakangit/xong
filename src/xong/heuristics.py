@@ -147,19 +147,12 @@ def word_count(text: str) -> int:
 
 def has_verb(text: str) -> bool:
     lower = text.strip().lower()
-    # multi-word verbs first
-    for verb in sorted(_VERBS, key=len, reverse=True):
-        if " " in verb:
-            if verb in lower:
-                return True
+    # multi-word verbs match as substrings
+    if any(" " in verb and verb in lower for verb in _VERBS):
+        return True
     tokens = re.findall(r"[\w'-]+", lower, flags=re.UNICODE)
-    if not tokens:
-        return False
     # first token or any token match
-    for t in tokens[:4]:
-        if t in _VERBS:
-            return True
-    return False
+    return any(t in _VERBS for t in tokens[:4])
 
 
 def looks_vague(title: str, next_action: str | None = None) -> bool:
@@ -171,6 +164,4 @@ def looks_vague(title: str, next_action: str | None = None) -> bool:
         return False
     if word_count(title) > 10:
         return True
-    if not has_verb(title):
-        return True
-    return False
+    return not has_verb(title)

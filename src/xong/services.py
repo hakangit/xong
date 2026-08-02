@@ -32,20 +32,15 @@ from xong.schemas import (
 )
 
 
+def _user_tz(user: User) -> ZoneInfo:
+    try:
+        return ZoneInfo(user.tz)
+    except Exception:
+        return ZoneInfo("UTC")
+
+
 def user_today(user: User) -> date:
-    try:
-        tz = ZoneInfo(user.tz)
-    except Exception:
-        tz = ZoneInfo("UTC")
-    return datetime.now(tz).date()
-
-
-def user_now(user: User) -> datetime:
-    try:
-        tz = ZoneInfo(user.tz)
-    except Exception:
-        tz = ZoneInfo("UTC")
-    return datetime.now(tz)
+    return datetime.now(_user_tz(user)).date()
 
 
 def log_event(
@@ -308,12 +303,6 @@ def set_focus(db: Session, user: User, actor: str, task_ids: list[int]) -> Focus
         if tid not in seen:
             seen.add(tid)
             unique_ids.append(tid)
-    if len(unique_ids) > FOCUS_MAX:
-        raise HTTPException(
-            status.HTTP_400_BAD_REQUEST,
-            detail=f"Today's 3: max {FOCUS_MAX} tasks",
-        )
-
     today = user_today(user)
     tasks_out: list[TaskOut] = []
     for tid in unique_ids:
@@ -359,11 +348,7 @@ def get_focus(db: Session, user: User, on_date: date | None = None) -> FocusOut:
 
 def completion_dates(db: Session, user: User) -> set[date]:
     """Distinct local dates with ≥1 completion."""
-    try:
-        tz = ZoneInfo(user.tz)
-    except Exception:
-        tz = ZoneInfo("UTC")
-
+    tz = _user_tz(user)
     events = (
         db.query(Event)
         .filter(Event.user_id == user.id, Event.event_type == "task_completed")
@@ -394,11 +379,7 @@ def compute_streak(db: Session, user: User) -> int:
 
 def get_today(db: Session, user: User) -> TodayOut:
     today = user_today(user)
-    try:
-        tz = ZoneInfo(user.tz)
-    except Exception:
-        tz = ZoneInfo("UTC")
-
+    tz = _user_tz(user)
     start = datetime.combine(today, datetime.min.time(), tzinfo=tz)
     end = start + timedelta(days=1)
 
@@ -446,10 +427,7 @@ def get_today(db: Session, user: User) -> TodayOut:
 
 
 def weekly_recap(db: Session, user: User) -> WeeklyRecapOut:
-    try:
-        tz = ZoneInfo(user.tz)
-    except Exception:
-        tz = ZoneInfo("UTC")
+    tz = _user_tz(user)
     today = user_today(user)
     week_start = today - timedelta(days=6)
 
@@ -561,7 +539,7 @@ def add_link(
 ) -> Attachment:
     task = task_owned(db, user, task_id)
     url = (url or "").strip()
-    if not (url.startswith("http://") or url.startswith("https://")):
+    if not url.startswith(("http://", "https://")):
         raise HTTPException(
             status.HTTP_422_UNPROCESSABLE_CONTENT,
             detail="URL must start with http:// or https://",

@@ -1,9 +1,9 @@
 /* Xong — data layer.
  *
  * ApiClient targets /api/v1 (endpoints per SPEC.md) with an offline-first
- * design: localStorage cache + outbound op queue. MOCK mode
- * (window.XONG_MOCK !== false, default ON for now) serves seeded demo data
- * from a local engine so the UI is fully usable from file:// with no server.
+ * design: localStorage cache + outbound op queue. Mock mode
+ * (window.XONG_MOCK === true, or any file:// preview) serves seeded demo
+ * data from a local engine; otherwise the real API is used.
  */
 (function () {
 'use strict';
@@ -188,22 +188,6 @@ LocalEngine.prototype.createList = function (body) {
   return l;
 };
 
-LocalEngine.prototype.updateList = function (id, body) {
-  var l = this.db.lists.find(function (x) { return x.id === id; });
-  if (!l) return null;
-  if (body.name != null) l.name = body.name;
-  if (body.position != null) l.position = body.position;
-  if (body.archived != null) l.archived = body.archived;
-  this._save();
-  return l;
-};
-
-LocalEngine.prototype.deleteList = function (id) {
-  this.db.lists = this.db.lists.filter(function (x) { return x.id !== id; });
-  this.db.tasks = this.db.tasks.filter(function (t) { return t.list_id !== id; });
-  this._save();
-};
-
 LocalEngine.prototype.getTasks = function (listId, includeCompleted) {
   return this.db.tasks
     .filter(function (t) {
@@ -372,12 +356,6 @@ LocalEngine.prototype.getWeeklyRecap = function () {
   };
 };
 
-LocalEngine.prototype.getEvents = function (since) {
-  return this.db.events
-    .filter(function (e) { return !since || e.created_at > since; })
-    .sort(function (a, b) { return a.created_at < b.created_at ? 1 : -1; });
-};
-
 /* ---------- ApiClient: /api/v1 with offline-first cache + op queue ---------- */
 
 function ApiClient(opts) {
@@ -539,14 +517,6 @@ ApiClient.prototype.getWeeklyRecap = function () {
     return e.getWeeklyRecap();
   });
 };
-ApiClient.prototype.getEvents = function (since) {
-  var e = this.engine;
-  var q = since ? '?since=' + encodeURIComponent(since) : '';
-  return this._call('GET', '/events' + q, null, function () {
-    return e.getEvents(since);
-  });
-};
-
 // ---- attachments + assistant: real mode only (no-op offline) ----
 
 ApiClient.prototype.getAttachments = async function (taskId) {
