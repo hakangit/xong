@@ -44,7 +44,9 @@ jobs:
             -scheme Xong \
             -destination "generic/platform=iOS Simulator" \
             -derivedDataPath "$RUNNER_TEMP/xong-codeql" \
-            CODE_SIGNING_ALLOWED=NO
+            ARCHS=arm64 \
+            CODE_SIGNING_ALLOWED=NO \
+            ONLY_ACTIVE_ARCH=YES
       - name: Analyze
         uses: github/codeql-action/analyze@f205ea1c3313d32999d8d6a48b4f6530d4437b38 # v4
         with:
