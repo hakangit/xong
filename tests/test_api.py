@@ -217,6 +217,27 @@ def test_ui_complete(client: TestClient):
     assert not any(x["id"] == t["id"] for x in open_tasks)
 
 
+@pytest.mark.parametrize("redirect_to", ["https://attacker.example", "//attacker.example"])
+def test_ui_task_redirect_cannot_leave_xong(client: TestClient, redirect_to: str):
+    response = client.post(
+        "/ui/tasks",
+        data={"title": "Stay local", "redirect_to": redirect_to},
+        follow_redirects=False,
+    )
+    assert response.status_code == 303
+    assert response.headers["location"] == "/"
+
+
+def test_ui_task_redirect_preserves_local_path_and_query(client: TestClient):
+    response = client.post(
+        "/ui/tasks",
+        data={"title": "Stay local", "redirect_to": "/lists/1?view=open#ignored"},
+        follow_redirects=False,
+    )
+    assert response.status_code == 303
+    assert response.headers["location"] == "/lists/1?view=open"
+
+
 def test_new_task_goes_to_top(client: TestClient):
     a = client.post("/api/v1/tasks", json={"title": "First"}).json()
     b = client.post("/api/v1/tasks", json={"title": "Second"}).json()
@@ -239,6 +260,22 @@ def _agent_key(agent: str, acts_for: list[str]) -> str:
         )
     engine.dispose()
     return raw
+
+
+def test_attachment_storage_cannot_escape_root(tmp_path, monkeypatch):
+    from xong import config, storage
+
+    monkeypatch.setenv("XONG_FILES_DIR", str(tmp_path))
+    config.get_files_dir.cache_clear()
+    try:
+        with pytest.raises(ValueError, match="escapes storage root"):
+            storage.open_read("../outside")
+
+        (tmp_path / "link").symlink_to(tmp_path.parent, target_is_directory=True)
+        with pytest.raises(ValueError, match="escapes storage root"):
+            storage.open_read("link/outside")
+    finally:
+        config.get_files_dir.cache_clear()
 
 
 @pytest.mark.skipif("files" not in PLUGINS, reason="files plugin disabled")

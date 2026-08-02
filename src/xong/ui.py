@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from urllib.parse import urlsplit, urlunsplit
 
 from fastapi import APIRouter, Depends, Form, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
@@ -16,6 +17,18 @@ TEMPLATES_DIR = Path(__file__).resolve().parent / "templates"
 templates = Jinja2Templates(directory=str(TEMPLATES_DIR))
 
 router = APIRouter()
+
+
+def _local_redirect(target: str) -> str:
+    parts = urlsplit(target.strip())
+    if (
+        parts.scheme
+        or parts.netloc
+        or not parts.path.startswith("/")
+        or parts.path.startswith("//")
+    ):
+        return "/"
+    return urlunsplit(("", "", parts.path, parts.query, ""))
 
 
 def _calm_due_label(task, today) -> str | None:
@@ -149,8 +162,8 @@ def ui_add_task(
     services.create_task(db, ctx.user, ctx.actor, body)
 
     if request.headers.get("HX-Request"):
-        return RedirectResponse(redirect_to, status_code=303)
-    return RedirectResponse(redirect_to, status_code=303)
+        return RedirectResponse(_local_redirect(redirect_to), status_code=303)
+    return RedirectResponse(_local_redirect(redirect_to), status_code=303)
 
 
 @router.post("/ui/tasks/{task_id}/complete", response_class=HTMLResponse)
@@ -180,10 +193,10 @@ def ui_focus_toggle(
     else:
         if len(ids) >= 3:
             # Silently keep max 3 — do not shame
-            return RedirectResponse(redirect_to, status_code=303)
+            return RedirectResponse(_local_redirect(redirect_to), status_code=303)
         ids.append(task_id)
     services.set_focus(db, ctx.user, ctx.actor, ids)
-    return RedirectResponse(redirect_to, status_code=303)
+    return RedirectResponse(_local_redirect(redirect_to), status_code=303)
 
 
 @router.post("/ui/tasks/{task_id}/next-action", response_class=HTMLResponse)
@@ -201,4 +214,4 @@ def ui_next_action(
         task_id,
         TaskUpdate(next_action=next_action.strip() or None),
     )
-    return RedirectResponse(redirect_to, status_code=303)
+    return RedirectResponse(_local_redirect(redirect_to), status_code=303)
