@@ -233,12 +233,6 @@ final class LocalEngine {
         save()
         return list
     }
-
-    func deleteList(_ id: Int) {
-        db.lists.removeAll { $0.id == id }
-        db.tasks.removeAll { $0.listId == id }
-        save()
-    }
 }
 
 enum DayKey {

@@ -8,19 +8,19 @@ enum Strings {
         case welcomeTitle, welcomeBody
         case useLocal, useLocalHint
         case connectServer, connectServerHint
-        case connectTitle, connectHint, connectPlaceholder, connectAction, connectSearching
-        case confirmTitle, confirmBody, confirmSignIn, confirmSwitch
-        case signingIn, back, cancel, retry
+        case connectHint, connectPlaceholder, connectAction, connectSearching
+        case confirmBody, confirmSignIn, confirmSwitch
+        case signingIn, back, cancel
         case errNotHTTPS, errNoConfig, errMalformed, errSignIn, errOffline
         // Main UI
         case navToday, navLists, navRecap
         case greetMorning, greetAfternoon, greetEvening
-        case streakDays, streakQuiet
+        case streakDays
         case focusTitle, focusHint, focusEmpty, maxThree
         case overdueTitle, dueTodayTitle, emptyList, addPlaceholder
-        case newListPlaceholder, defaultListName, firstStep
+        case defaultListName, firstStep
         case sinceYesterday, sinceDaysAgo, dueAtTime
-        case recapTitle, recapTotal, recapBestDay, recapEmpty
+        case recapTitle, recapTotal, recapEmpty
         case offline, done, delete
         // Settings
         case settings, settingsLanguage, settingsLanguageSystem, settingsConnection
@@ -74,19 +74,16 @@ enum Strings {
             .useLocalHint: "Mọi thứ ở lại trong điện thoại. Không cần tài khoản.",
             .connectServer: "Kết nối với công ty",
             .connectServerHint: "Đồng bộ với máy chủ Xong của tổ chức bạn.",
-            .connectTitle: "Kết nối",
             .connectHint: "Nhập email công việc, hoặc địa chỉ máy chủ.",
             .connectPlaceholder: "ban@example.com",
             .connectAction: "Tiếp tục",
             .connectSearching: "Đang tìm máy chủ…",
-            .confirmTitle: "Đã tìm thấy",
             .confirmBody: "Bạn sẽ đăng nhập và đồng bộ việc với máy chủ này.",
             .confirmSignIn: "Đăng nhập",
             .confirmSwitch: "Đổi địa chỉ khác",
             .signingIn: "Đang đăng nhập…",
             .back: "Quay lại",
             .cancel: "Bỏ qua",
-            .retry: "Thử lại",
             .errNotHTTPS: "Địa chỉ cần dùng HTTPS.",
             .errNoConfig: "Chưa tìm thấy máy chủ Xong ở địa chỉ này.",
             .errMalformed: "Máy chủ trả về cấu hình không đọc được.",
@@ -99,7 +96,6 @@ enum Strings {
             .greetAfternoon: "Chào buổi chiều",
             .greetEvening: "Chào buổi tối",
             .streakDays: "{n} ngày liên tiếp",
-            .streakQuiet: "Hôm nay là ngày đẹp để bắt đầu",
             .focusTitle: "3 việc hôm nay",
             .focusHint: "Đánh dấu ★ để chọn tối đa 3 việc quan trọng nhất hôm nay.",
             .focusEmpty: "Chưa chọn việc nào — một khởi đầu nhẹ nhàng cũng tuyệt lắm.",
@@ -108,7 +104,6 @@ enum Strings {
             .dueTodayTitle: "Đến hạn hôm nay",
             .emptyList: "Trống trơn — thoải mái nhé.",
             .addPlaceholder: "Thêm việc, Enter là xong",
-            .newListPlaceholder: "Danh sách mới",
             .defaultListName: "Việc của tôi",
             .firstStep: "Bước đầu:",
             .sinceYesterday: "từ hôm qua",
@@ -116,7 +111,6 @@ enum Strings {
             .dueAtTime: "hôm nay",
             .recapTitle: "Tuần này",
             .recapTotal: "Đã xong {n} việc",
-            .recapBestDay: "Ngày nhiều nhất",
             .recapEmpty: "Tuần này còn nhẹ nhàng — vẫn ổn mà.",
             .offline: "Ngoại tuyến",
             .done: "Xong",
@@ -167,19 +161,16 @@ enum Strings {
             .useLocalHint: "Everything stays on your device. No account needed.",
             .connectServer: "Connect to my company",
             .connectServerHint: "Sync with your organization's Xong server.",
-            .connectTitle: "Connect",
             .connectHint: "Enter your work email, or a server address.",
             .connectPlaceholder: "you@example.com",
             .connectAction: "Continue",
             .connectSearching: "Looking for your server…",
-            .confirmTitle: "Found it",
             .confirmBody: "You'll sign in and sync your tasks with this server.",
             .confirmSignIn: "Sign in",
             .confirmSwitch: "Use a different address",
             .signingIn: "Signing in…",
             .back: "Back",
             .cancel: "Not now",
-            .retry: "Try again",
             .errNotHTTPS: "The address needs to use HTTPS.",
             .errNoConfig: "No Xong server found at that address.",
             .errMalformed: "That server returned a config we couldn't read.",
@@ -192,7 +183,6 @@ enum Strings {
             .greetAfternoon: "Good afternoon",
             .greetEvening: "Good evening",
             .streakDays: "{n}-day streak",
-            .streakQuiet: "Today is a good day to begin",
             .focusTitle: "Today's 3",
             .focusHint: "Tap ★ to choose up to 3 things that matter most today.",
             .focusEmpty: "Nothing chosen yet — a gentle start still counts.",
@@ -201,7 +191,6 @@ enum Strings {
             .dueTodayTitle: "Due today",
             .emptyList: "All clear — breathe easy.",
             .addPlaceholder: "Add a task, Enter to save",
-            .newListPlaceholder: "New list",
             .defaultListName: "My tasks",
             .firstStep: "First step:",
             .sinceYesterday: "since yesterday",
@@ -209,7 +198,6 @@ enum Strings {
             .dueAtTime: "today",
             .recapTitle: "This week",
             .recapTotal: "{n} done",
-            .recapBestDay: "Best day",
             .recapEmpty: "A light week — that's fine too.",
             .offline: "Offline",
             .done: "Done",
@@ -260,19 +248,16 @@ enum Strings {
             .useLocalHint: "所有内容都留在手机里，无需账号。",
             .connectServer: "连接到公司",
             .connectServerHint: "与所在组织的 Xong 服务器同步。",
-            .connectTitle: "连接",
             .connectHint: "输入工作邮箱，或服务器地址。",
             .connectPlaceholder: "you@example.com",
             .connectAction: "继续",
             .connectSearching: "正在查找服务器…",
-            .confirmTitle: "已找到",
             .confirmBody: "你将登录并与该服务器同步事项。",
             .confirmSignIn: "登录",
             .confirmSwitch: "换一个地址",
             .signingIn: "正在登录…",
             .back: "返回",
             .cancel: "暂不",
-            .retry: "再试一次",
             .errNotHTTPS: "地址需要使用 HTTPS。",
             .errNoConfig: "在该地址没有找到 Xong 服务器。",
             .errMalformed: "该服务器返回的配置无法读取。",
@@ -285,7 +270,6 @@ enum Strings {
             .greetAfternoon: "下午好",
             .greetEvening: "晚上好",
             .streakDays: "连续 {n} 天",
-            .streakQuiet: "今天很适合开始",
             .focusTitle: "今天的三件事",
             .focusEmpty: "还没有选 — 轻轻开始也很好。",
             .focusHint: "点 ★ 选出今天最重要的三件事。",
@@ -294,7 +278,6 @@ enum Strings {
             .dueTodayTitle: "今天到期",
             .emptyList: "空空的 — 放轻松。",
             .addPlaceholder: "添加事项，回车保存",
-            .newListPlaceholder: "新清单",
             .defaultListName: "我的事项",
             .firstStep: "第一步：",
             .sinceYesterday: "从昨天起",
@@ -302,7 +285,6 @@ enum Strings {
             .dueAtTime: "今天",
             .recapTitle: "本周",
             .recapTotal: "完成 {n} 件",
-            .recapBestDay: "最多的一天",
             .recapEmpty: "这周比较轻 — 也很好。",
             .offline: "离线",
             .done: "完成",

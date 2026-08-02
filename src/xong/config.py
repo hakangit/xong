@@ -94,7 +94,6 @@ def get_allowed_hosts() -> tuple[str, ...]:
     return tuple(host.strip() for host in raw.split(",") if host.strip())
 
 
-DEFAULT_TZ = "UTC"
 DEFAULT_LIST_NAME = "Việc của tôi"
 FOCUS_MAX = 3
 

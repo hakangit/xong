@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+from datetime import datetime
 from pathlib import Path
 from urllib.parse import urlsplit, urlunsplit
+from zoneinfo import ZoneInfo
 
 from fastapi import APIRouter, Depends, Form, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
@@ -35,15 +37,8 @@ def _calm_due_label(task, today) -> str | None:
     """Calm overdue/due label — never shaming."""
     if not task.due_at:
         return None
-    # due_at is aware; compare dates in a simple way via iso date string
-    due_date = task.due_at.date() if hasattr(task.due_at, "date") else task.due_at
-    # For TaskOut, due_at is datetime
-    if hasattr(task.due_at, "astimezone"):
-        # We don't have user tz here easily; use date part only if naive-ish
-        try:
-            due_date = task.due_at.date()
-        except Exception:
-            return None
+    # due_at is an aware datetime; compare on the date part only
+    due_date = task.due_at.date()
     if due_date < today:
         days = (today - due_date).days
         if days == 1:
@@ -125,7 +120,6 @@ def recap_view(
 
 @router.post("/ui/tasks", response_class=HTMLResponse)
 def ui_add_task(
-    request: Request,
     title: str = Form(...),
     list_id: int | None = Form(default=None),
     next_action: str | None = Form(default=None),
@@ -141,11 +135,8 @@ def ui_add_task(
         raw = due_at.strip()
         try:
             if "T" in raw:
-                due = __import__("datetime").datetime.fromisoformat(raw)
+                due = datetime.fromisoformat(raw)
             else:
-                from datetime import datetime
-                from zoneinfo import ZoneInfo
-
                 d = datetime.strptime(raw, "%Y-%m-%d").date()
                 tz = ZoneInfo(ctx.user.tz)
                 due = datetime.combine(d, datetime.min.time().replace(hour=17), tzinfo=tz)
@@ -160,16 +151,12 @@ def ui_add_task(
         when_where=when_where or None,
     )
     services.create_task(db, ctx.user, ctx.actor, body)
-
-    if request.headers.get("HX-Request"):
-        return RedirectResponse(_local_redirect(redirect_to), status_code=303)
     return RedirectResponse(_local_redirect(redirect_to), status_code=303)
 
 
 @router.post("/ui/tasks/{task_id}/complete", response_class=HTMLResponse)
 def ui_complete(
     task_id: int,
-    request: Request,
     ctx: AuthContext = Depends(require_auth),
     db: Session = Depends(get_db),
 ):
@@ -181,7 +168,6 @@ def ui_complete(
 @router.post("/ui/tasks/{task_id}/focus-toggle", response_class=HTMLResponse)
 def ui_focus_toggle(
     task_id: int,
-    request: Request,
     redirect_to: str = Form(default="/"),
     ctx: AuthContext = Depends(require_auth),
     db: Session = Depends(get_db),

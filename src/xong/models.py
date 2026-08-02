@@ -495,6 +495,8 @@ class DecisionTrace(Base):
     )
 
     skill: Mapped[Skill] = relationship(back_populates="decision_traces")
+
+
 class LogicalField(Base):
     """A concept ("contract_number") that procedures reference instead of a letter."""
 

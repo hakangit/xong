@@ -4,7 +4,7 @@ import hashlib
 import secrets
 from dataclasses import dataclass
 
-from fastapi import Depends, Header, HTTPException, Request, status
+from fastapi import Depends, Header, HTTPException, status
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
@@ -118,7 +118,6 @@ def resolve_identity(
 
 
 def resolve_auth(
-    request: Request,
     db: Session = Depends(get_db),
     authorization: str | None = Header(default=None),
     x_acts_for: str | None = Header(default=None, alias="X-Acts-For"),
@@ -211,7 +210,6 @@ def require_auth(ctx: AuthContext = Depends(resolve_auth)) -> AuthContext:
 
 
 def require_bearer_auth(
-    request: Request,
     db: Session = Depends(get_db),
     authorization: str | None = Header(default=None),
     x_acts_for: str | None = Header(default=None, alias="X-Acts-For"),
@@ -224,7 +222,6 @@ def require_bearer_auth(
             headers={"WWW-Authenticate": "Bearer"},
         )
     return resolve_auth(
-        request,
         db=db,
         authorization=authorization,
         x_acts_for=x_acts_for,

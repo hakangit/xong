@@ -114,7 +114,6 @@ class MCPAuthMiddleware:
         with get_session_factory()() as db:
             try:
                 ctx = resolve_auth(
-                    request,
                     db=db,
                     authorization=authorization,
                     x_acts_for=request.headers.get("X-Acts-For"),
