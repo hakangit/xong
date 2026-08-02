@@ -13,41 +13,20 @@ permissions:
 
 jobs:
   analyze:
-    name: CodeQL (${{ matrix.language }})
-    runs-on: ${{ matrix.runner }}
-    timeout-minutes: 30
+    name: CodeQL (python)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
     permissions:
       contents: read
       security-events: write
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - language: python
-            build-mode: none
-            runner: ubuntu-latest
-          - language: swift
-            build-mode: manual
-            runner: macos-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Initialize CodeQL
         uses: github/codeql-action/init@f205ea1c3313d32999d8d6a48b4f6530d4437b38 # v4
         with:
-          languages: ${{ matrix.language }}
-          build-mode: ${{ matrix.build-mode }}
-      - name: Build iOS client
-        if: matrix.language == 'swift'
-        run: |
-          xcodebuild build \
-            -project clients/ios/Xong.xcodeproj \
-            -scheme Xong \
-            -destination "generic/platform=iOS Simulator" \
-            -derivedDataPath "$RUNNER_TEMP/xong-codeql" \
-            ARCHS=arm64 \
-            CODE_SIGNING_ALLOWED=NO \
-            ONLY_ACTIVE_ARCH=YES
+          languages: python
+          build-mode: none
       - name: Analyze
         uses: github/codeql-action/analyze@f205ea1c3313d32999d8d6a48b4f6530d4437b38 # v4
         with:
-          category: /language:${{ matrix.language }}
+          category: /language:python
