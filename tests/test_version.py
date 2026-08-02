@@ -19,5 +19,5 @@ def test_release_version_is_consistent_across_python_and_ios():
     )
 
     assert __version__ == project_version
-    assert ios_version == project_version
+    assert ios_version == "$(MARKETING_VERSION)"
     assert marketing_versions == {project_version}
